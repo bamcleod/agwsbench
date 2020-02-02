@@ -4,7 +4,7 @@ shcentroids: shcentroids.o shfunctions.o
 
 shfunctions.o: shfunctions.c sh.h
 
-shcentroids.o: shfunctions.c sh.h
+shcentroids.o: shcentroids.c sh.h
 
 
 #	cc -O3 -o shcentroids shcentroids.c

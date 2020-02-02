@@ -11,7 +11,6 @@ extern pixtype image[1024*1024] __attribute__((aligned(64)));
 extern pixtype bias[1024*1024] __attribute__((aligned(64)));
 extern pixtype flat[1024*1024] __attribute__((aligned(64)));
 
-
 /* Thresholded centroid */
 void shthresh(int *subaps, // Array of subaperture locations subap[2*i]=y subap[2*1+1]=x
 	      int nsubaps,  // Number of subapertures
@@ -86,7 +85,7 @@ void shcorrelate(int *subaps, // Array of subaperture locations subap[2*i]=y sub
     int yoff, xoff;
 
     int nkern = nxkern * nykern;
-    static pixtype ****datapointers = NULL;
+    static pixtype **datapointers = NULL;
     int nxlag = (npixsubap - nxkern + 1);
     int nylag = (npixsubap - nykern + 1);
     int nlags = nxlag * nylag;
@@ -106,23 +105,26 @@ void shcorrelate(int *subaps, // Array of subaperture locations subap[2*i]=y sub
     int startx = nx/2 - npixsubap * nxap/2;
     int endy = starty + npixsubap * nyap;
     int endx = startx + npixsubap * nxap;
-
+    static pixtype *buff = NULL;
+    static pixtype *sums = NULL;
+    static pixtype *mults = NULL;
+    static pixtype *bigkern = NULL;
     
     // Allocated buffers for the pointers
 
     if (datapointers == NULL) {
-	datapointers = (pixtype ****)malloc(nsubaps * sizeof (pixtype***));
-	for (iap=0;iap<nsubaps;iap++) {
-	    datapointers[iap] = (pixtype ***)malloc(nlags * sizeof (pixtype **));
-	    for (ilag=0; ilag<nlags; ilag++) {
-		datapointers[iap][ilag] = (pixtype **)malloc(nkern * sizeof (pixtype *));
-	    }
-	}
+
+	datapointers = (pixtype **)malloc(nsubaps * nlags * nkern * sizeof (pixtype*));
+	crosscorr = (double *)malloc(nlags * sizeof(double));
+	buff = (pixtype *)malloc(nsubaps * nlags * nkern * sizeof(pixtype));
+	mults = (pixtype *)malloc(nsubaps * nlags * nkern * sizeof(pixtype));
+	sums = (pixtype *)malloc(nsubaps * nlags * sizeof(pixtype));
+	bigkern = (pixtype *)malloc(nsubaps * nlags * nkern * sizeof(pixtype));
 
 	// Set up all the pointers
-	
+
 	// Loop over subapertures
-	for (iyap=0; iyap < nyap; iyap++) {
+	for (int i=0, iyap=0; iyap < nyap; iyap++) {
 	    for (ixap=0; ixap < nxap; ixap++) {
 		iap = iyap * nxap + ixap;
 		// Loop over lags
@@ -135,7 +137,8 @@ void shcorrelate(int *subaps, // Array of subaperture locations subap[2*i]=y sub
 				ikern = iykern * nxkern + ixkern;
 				ix = subaps[2*iap]   + ixlag + ixkern;
 				iy = subaps[2*iap+1] + iylag + iykern;
-				datapointers[iap][ilag][ikern] = & flattened[iy * nx + ix];
+				datapointers[i] = & flattened[iy * nx + ix];
+				bigkern[i++] = kernel[ikern];
 			    }
 			}
 		    }
@@ -144,9 +147,6 @@ void shcorrelate(int *subaps, // Array of subaperture locations subap[2*i]=y sub
 	}
     }
     
-    if (crosscorr == NULL) {
-	crosscorr = (double *)malloc(nlags * sizeof(double));
-    }
 
     // Bias and flat correction
     
@@ -155,37 +155,33 @@ void shcorrelate(int *subaps, // Array of subaperture locations subap[2*i]=y sub
 	    flattened[iy*nx+ix] = (image[iy*nx+ix] - bias[iy*nx+ix]) * flat[iy*nx+ix];
 	}
     }
-    
-    imax = 0;
-    sumclock=0;
-    // For each subaperture
-    for (iap=0; iap < nsubaps; iap++) {
 
+    // Copy the data into a linear buffer so it can be well vectorized
+    for (int i=0; i < nsubaps * nlags * nkern; i++) {
+	buff[i] = *(datapointers[i]);
+    }
 
-	/*
-	yoff = subaps[2*iap];
-	xoff = subaps[2*iap+1];
-	for (iy=0; iy < npixsubap; iy++) {
-	    for (ix=0; ix < npixsubap; ix++) {
-		pixoff = (yoff + iy) * nx + xoff + ix;
-		flattened[pixoff] = (image[pixoff] - bias[pixoff]) * flat[pixoff];
-	    }
+    // Compute all the cross correlations
+
+    for (int i=0; i < nsubaps * nlags * nkern; i++) {
+	mults[i] = buff[i] * bigkern[i];
+    }
+    for (int i=0; i<nsubaps * nlags; i++) {
+	sums[i] = 0;
+	for (ikern = 0; ikern < nkern; ikern++) {
+	    sums[i] += mults[i*nkern+ikern];
 	}
-	*/
-	
-	// For each lag compute one value in the cross correlation matrix
+    }
 
-	//	start = clock();
-
+    // For each subap find the peak in its cross correlation
+    
+    for (int i=0,iap=0; iap < nsubaps; iap++) {
 	summax = 0;
 	imax = -1;
 	for (ilag = 0; ilag < nlags; ilag++) {
 	    // For each pixel
 	    sum = 0;
-	    for (ikern = 0; ikern < nkern; ikern++) {
-		sum += *(datapointers[iap][ilag][ikern]) * kernel[ikern];
-	    }
-	    crosscorr[ilag] = sum;
+	    crosscorr[ilag] = sums[iap*nlags + ilag];
 	    if (sum > summax) {
 		imax = ilag;
 		summax = sum;
