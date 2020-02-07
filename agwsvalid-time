@@ -1,0 +1,14 @@
+#!/bin/sh
+
+echo "Number of iterations:  `wc -l fields.txt`"
+
+cd ../skycover
+echo
+echo M3
+time ./agwsvalid --m3 --boolonly < ../agwsbench/fields.txt > /dev/null
+echo 
+echo DGNF
+time ./agwsvalid --dgnf --boolonly < ../agwsbench/fields.txt > /dev/null
+echo
+echo DGWF
+time ./agwsvalid --dgwf --boolonly < ../agwsbench/fields.txt > /dev/null
