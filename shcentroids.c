@@ -69,10 +69,28 @@ int main (int argc, char *argv[]) {
 	if (iloop == 0) {
 	    start = clock();
 	}
-	shcorrelate(subaps, nsubapx, nsubapy, imagesize, imagesize, subapsize, kernsize, kernsize, kernel, xcentroids, ycentroids);
+	shcorrelate_pointerstodata(subaps, nsubapx, nsubapy, imagesize, imagesize, subapsize, kernsize, kernsize, kernel, xcentroids, ycentroids);
     }
     stop = clock();
-    printf("Cross correlation: %f msec per loop\n", (float)(stop-start) / CLOCKS_PER_SEC / nloops * 1000);
+    printf("Cross correlation with pointers: %f msec per loop\n", (float)(stop-start) / CLOCKS_PER_SEC / nloops * 1000);
+
+    for (iloop=-1; iloop<nloops; iloop++) {
+	if (iloop == 0) {
+	    start = clock();
+	}
+	shcorrelate_copydata(subaps, nsubapx, nsubapy, imagesize, imagesize, subapsize, kernsize, kernsize, kernel, xcentroids, ycentroids);
+    }
+    stop = clock();
+    printf("Cross correlation with copied data: %f msec per loop\n", (float)(stop-start) / CLOCKS_PER_SEC / nloops * 1000);
+
+    for (iloop=-1; iloop<nloops; iloop++) {
+	if (iloop == 0) {
+	    start = clock();
+	}
+	shcorrelate_fft(subaps, nsubapx, nsubapy, imagesize, imagesize, subapsize, kernsize, kernsize, kernel, xcentroids, ycentroids);
+    }
+    stop = clock();
+    printf("Cross correlation with FFT: %f msec per loop\n", (float)(stop-start) / CLOCKS_PER_SEC / nloops * 1000);
 
 
     return 0;

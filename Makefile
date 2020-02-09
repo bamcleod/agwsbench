@@ -1,8 +1,12 @@
 CFLAGS = -O3 -g -march=skylake-avx512 -ftree-vectorize -fopt-info-vec-optimized -fopt-info-loop-optimized
 
-shcentroids: shcentroids.o shfunctions.o
+
+shcentroids: shcentroids.o shfunctions.o sh-fft.o
+	cc  shcentroids.o shfunctions.o sh-fft.o -lfftw3 -o shcentroids 
 
 shfunctions.o: shfunctions.c sh.h
+
+sh-fft.o: sh-fft.c sh.h
 
 shcentroids.o: shcentroids.c sh.h
 
