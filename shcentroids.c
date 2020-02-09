@@ -30,7 +30,14 @@ int main (int argc, char *argv[]) {
     int kernsize = 4;
     pixtype *kernel;
     int i;
-    
+
+    if (argc != 3) {
+	fprintf(stderr, "Usage: shcentroids number_of_subaps pixels_per_subap\n");
+	exit(1);
+    }
+    nsubapx = nsubapy = atoi(argv[1]);
+    subapsize = atoi(argv[2]);
+
 	    
     xcentroids = (double *) malloc (nsubaps * sizeof(double));
     ycentroids = (double *) malloc (nsubaps * sizeof(double));
