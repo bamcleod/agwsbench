@@ -210,12 +210,12 @@ void shcorrelate_copydata(int *subaps, // Array of subaperture locations subap[2
 	I1 = crosscorr[(iymax - 1) * nxkern + ixmax];
 	I2 = crosscorr[(iymax    ) * nxkern + ixmax];
 	I3 = crosscorr[(iymax + 1) * nxkern + ixmax];
-	ycens[iap] = iymax + (I1 - I3) / (I1 + I3 - 2 * I2);
+	ycens[iap] = iymax + (I1 - I3) / (I1 + I3 - 2 * I2) / 2;
 	// x
 	I1 = crosscorr[iymax * nxkern + ixmax - 1];
 	I2 = crosscorr[iymax * nxkern + ixmax    ];
 	I3 = crosscorr[iymax * nxkern + ixmax + 1];
-	xcens[iap] = ixmax + (I1 - I3) / (I1 + I3 - 2 * I2);
+	xcens[iap] = ixmax + (I1 - I3) / (I1 + I3 - 2 * I2) / 2;
 
     }
     //  printf("Kernel calc: %f msec \n", (float)(sumclock) / CLOCKS_PER_SEC * 1000);
@@ -373,12 +373,12 @@ void shcorrelate_pointerstodata(int *subaps, // Array of subaperture locations s
 	I1 = crosscorr[(iymax - 1) * nxkern + ixmax];
 	I2 = crosscorr[(iymax    ) * nxkern + ixmax];
 	I3 = crosscorr[(iymax + 1) * nxkern + ixmax];
-	ycens[iap] = iymax + (I1 - I3) / (I1 + I3 - 2 * I2);
+	ycens[iap] = iymax + (I1 - I3) / (I1 + I3 - 2 * I2) / 2;
 	// x
 	I1 = crosscorr[iymax * nxkern + ixmax - 1];
 	I2 = crosscorr[iymax * nxkern + ixmax    ];
 	I3 = crosscorr[iymax * nxkern + ixmax + 1];
-	xcens[iap] = ixmax + (I1 - I3) / (I1 + I3 - 2 * I2);
+	xcens[iap] = ixmax + (I1 - I3) / (I1 + I3 - 2 * I2) / 2;
 
     }
     //  printf("Kernel calc: %f msec \n", (float)(sumclock) / CLOCKS_PER_SEC * 1000);

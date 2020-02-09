@@ -142,7 +142,7 @@ void shcorrelate_fft(int *subaps, // Array of subaperture locations subap[2*i]=y
 	I2 = crosscorr[ indx % npixfftin ];
 	indx += npixsubap;
 	I3 = crosscorr[ indx % npixfftin ];
-	ycens[iap] = iymax + (I1 - I3) / (I1 + I3 - 2 * I2);
+	ycens[iap] = iymax + (I1 - I3) / (I1 + I3 - 2 * I2) / 2;
 
 	// x
 	indx = (iymax * nxkern + ixmax - 1 );
@@ -152,7 +152,7 @@ void shcorrelate_fft(int *subaps, // Array of subaperture locations subap[2*i]=y
 	I2 = crosscorr[ indx % npixfftin ];
 	indx += 1;
 	I3 = crosscorr[ indx % npixfftin ];
-	xcens[iap] = ixmax + (I1 - I3) / (I1 + I3 - 2 * I2);
+	xcens[iap] = ixmax + (I1 - I3) / (I1 + I3 - 2 * I2) / 2;
 
 	// This should give the centroid relative to the center of the image because after the reverse fft we didn't shift.
 
