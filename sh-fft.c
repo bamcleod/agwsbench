@@ -69,7 +69,7 @@ void shcorrelate_fft(int *subaps, // Array of subaperture locations subap[2*i]=y
     fftw_plan plan_forward, plan_reverse;
     
     int npixfftin  = npixsubap * npixsubap;
-    int npixfftout = npixsubap * (npixsubap + 1) /2;
+    int npixfftout = npixsubap * (npixsubap/2 + 1);
     int indx;
     
     // Allocated buffers for the pointers

@@ -20,7 +20,7 @@ using namespace Eigen;
 #define NFOWLER    7
 #define NSKIP      1
 
-void preprocess(unsigned short int *data, int nframes, int nrows, int ncols, float *slopes)
+void preprocess(unsigned short int *data, int nframes, int nrows, int ncols, double *slopes)
 {
     int i;
     int f;
@@ -57,10 +57,10 @@ int main()
     VectorXf  b(NFOWLER-NSKIP);
     int       i, f, r ,c;
     unsigned short int *data;
-    float     *slopes;
+    double     *slopes;
 
     data   = (unsigned short int *)malloc( NFRAMES * NROWS * NCOLS * NFOWLER * sizeof(short int));
-    slopes =     (float *)malloc( NFRAMES * NROWS * NCOLS *           sizeof(float));
+    slopes =     (double *)malloc( NFRAMES * NROWS * NCOLS *           sizeof(double));
 
     /*    
 
@@ -87,4 +87,14 @@ int main()
     preprocess(data, NFRAMES, NROWS, NCOLS, slopes);
 	
 }
+
+
+
+
+
+
+
+
+
+
 

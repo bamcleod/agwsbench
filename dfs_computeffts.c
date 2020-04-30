@@ -50,7 +50,7 @@ void dfs_computeffts(
     fftw_plan plan_forward;
     
     int npixfftin  = npixsubap * npixsubap;
-    int npixfftout = npixsubap * (npixsubap + 1) /2;
+    int npixfftout = npixsubap * (npixsubap/2 + 1);
     int indx;
     
     // Allocated buffers for the pointers

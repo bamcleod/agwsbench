@@ -1,5 +1,5 @@
 CFLAGS = -O3 -g -march=skylake-avx512 -ftree-vectorize -fopt-info-vec-optimized -fopt-info-loop-optimized
-CFLAGS =  -g 
+#CFLAGS =  -g 
 
 all: shcentroids dfs_timing
 
@@ -27,8 +27,8 @@ dfs_timing.o: dfs_timing.c
 dfs_computeffts.o: dfs_computeffts.c
 	g++ -c -I /home/bmcleod/include $(CFLAGS) dfs_computeffts.c -o dfs_computeffts.o
 
-#dfs_preprocess: dfs_preprocess.cpp
-#	g++ -I /home/bmcleod/include -O3 -mavx512f -mavx512cd -fopt-info-vec-all -march=native dfs_preprocess.cpp -o dfs_preprocess
+dfs_preprocess: dfs_preprocess.cpp
+	g++ -I /home/bmcleod/include -O3 -mavx512f -mavx512cd -fopt-info-vec-all -march=native dfs_preprocess.cpp -o dfs_preprocess
 
 test:	fields.txt
 	./agwsvalid-time
