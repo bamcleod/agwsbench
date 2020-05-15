@@ -50,6 +50,7 @@ void shcorrelate_fft(
 		 int nykern,      // Number of pixels in the kernel x
 		 pixtype *kernel, // Kernel
 		 double *xcens,    // Return xcentoids
-		 double *ycens     // Return xcentoids
+		 double *ycens,    // Return xcentoids
+		 double *intensities
 		 );
 

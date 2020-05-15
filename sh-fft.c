@@ -19,17 +19,17 @@ extern pixtype flat[1024*1024] __attribute__((aligned(64)));
  * This version uses fftw
 */
 void shcorrelate_fft(int *subaps, // Array of subaperture locations subap[2*i]=y subap[2*1+1]=x
-		 int nxap,  // Number of subapertures x
-		 int nyap,  // Number of subapertures y
-		 int nx,          // Number of pixels in image x-axis
-		 int ny,          // Number of pixels in image y-axis
-		 int npixsubap,      // Number of pixels per subaperture
-		 int nxkern,      // Number of pixels in the kernel y
-		 int nykern,      // Number of pixels in the kernel x
-		 pixtype *kernel, // Kernel
-		 double *xcens,    // Return xcentoids
-		 double *ycens     // Return xcentoids
-
+		     int nxap,  // Number of subapertures x
+		     int nyap,  // Number of subapertures y
+		     int nx,          // Number of pixels in image x-axis
+		     int ny,          // Number of pixels in image y-axis
+		     int npixsubap,      // Number of pixels per subaperture
+		     int nxkern,      // Number of pixels in the kernel y
+		     int nykern,      // Number of pixels in the kernel x
+		     pixtype *kernel, // Kernel
+		     double *xcens,    // Return xcentoids
+		     double *ycens,     // Return xcentoids
+		     double *intensities
 )
 
 {
@@ -101,7 +101,8 @@ void shcorrelate_fft(int *subaps, // Array of subaperture locations subap[2*i]=y
 
     // For each subaperture
     for (isubap=0; isubap < nsubaps; isubap++) {
-	count = 0;
+	double edgesum = 0;
+	double sum = 0;
 	// For each pixel in the subaperture get pixels from image, debias, and flatten
 	for (iy=0; iy < npixsubap; iy++) {
 	    for (ix=0; ix < npixsubap; ix++) {
@@ -109,7 +110,15 @@ void shcorrelate_fft(int *subaps, // Array of subaperture locations subap[2*i]=y
 		xoff = subaps[2*isubap+1];
 		pixoff = (yoff + iy) * nx + xoff + ix;
 		flattened[iy*npixsubap+ix] = (image[pixoff] - bias[pixoff]) * flat[pixoff];
+		if (iy==0 || iy==npixsubap-1 || ix==0 || ix==npixsubap-1) {
+		    edgesum +=1;
+		} else {
+		    sum += 1;
+		}
 	    }
+	    /* Compute local background using mean of edge pixels */
+	    int np1 = npixsubap - 1;
+	    sum -= edgesum * np1 * np1 / (4 * np1);  /* Scale background sum by (pixels in box) / (pixels in edge) */
 	}
 
 	// Compute FFT

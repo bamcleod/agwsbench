@@ -20,12 +20,13 @@ using namespace Eigen;
 #define NFOWLER    7
 #define NSKIP      1
 
-void preprocess(unsigned short int *data, int nframes, int nrows, int ncols, double *slopes)
+void preprocess(unsigned short int *data, int nframes, int nrows, int ncols, double non_lin, double *slopes)
 {
     int i;
     int f;
     int r;
     int c;
+    double d;
     
     MatrixXf  A(NFOWLER-NSKIP,2);
     VectorXf  b(NFOWLER-NSKIP);
@@ -43,7 +44,8 @@ void preprocess(unsigned short int *data, int nframes, int nrows, int ncols, dou
 	for ( r=0; r<nrows; r++) { 
 	    for ( c=0; c<ncols; c++) {
 		for ( i=0; i<NFOWLER-NSKIP; i++) {
-		    b(i) = data[(f*NFOWLER+i) * nrows * ncols + r * ncols + c];
+		    d = data[(f*NFOWLER+i) * nrows * ncols + r * ncols + c];
+		    b(i) = d + non_lin * d * d;
 		}
 		slopes[f * nrows * ncols + r * ncols + c] = (Ainv * b)[1];
 	    }
@@ -61,6 +63,8 @@ int main()
 
     data   = (unsigned short int *)malloc( NFRAMES * NROWS * NCOLS * NFOWLER * sizeof(short int));
     slopes =     (double *)malloc( NFRAMES * NROWS * NCOLS *           sizeof(double));
+
+    double non_lin = 0.1 / (65535. * 65535.);
 
     /*    
 
@@ -84,7 +88,7 @@ int main()
     cout << "\n";
     */
     
-    preprocess(data, NFRAMES, NROWS, NCOLS, slopes);
+    preprocess(data, NFRAMES, NROWS, NCOLS, non_lin, slopes);
 	
 }
 

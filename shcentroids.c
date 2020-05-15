@@ -24,7 +24,7 @@ int main (int argc, char *argv[]) {
     int y0 = imagesize/2 - nsubapy/2 * subapsize;
     clock_t start, stop;
     int nloops = 1000;
-    double *xcentroids, *ycentroids;
+    double *xcentroids, *ycentroids, *intensities;
     int ix, iy, iloop;
     double thresh = 0;
     int kernsize = 4;
@@ -41,6 +41,7 @@ int main (int argc, char *argv[]) {
 	    
     xcentroids = (double *) malloc (nsubaps * sizeof(double));
     ycentroids = (double *) malloc (nsubaps * sizeof(double));
+    intensities = (double *) malloc (nsubaps * sizeof(double));
 
     subaps = (int *)malloc(nsubaps * 2 * sizeof(int));
 
@@ -94,7 +95,7 @@ int main (int argc, char *argv[]) {
 	if (iloop == 0) {
 	    start = clock();
 	}
-	shcorrelate_fft(subaps, nsubapx, nsubapy, imagesize, imagesize, subapsize, kernsize, kernsize, kernel, xcentroids, ycentroids);
+	shcorrelate_fft(subaps, nsubapx, nsubapy, imagesize, imagesize, subapsize, kernsize, kernsize, kernel, xcentroids, ycentroids, intensities);
     }
     stop = clock();
     printf("Cross correlation with FFT: %f msec per loop\n", (float)(stop-start) / CLOCKS_PER_SEC / nloops * 1000);
